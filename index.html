@@ -18,7 +18,8 @@
     <p id="result"></p>
     
     <script>
-        const kushki = new Kushki({ merchantId: '7ffc67b5640948c1842cd33739d281b9', inTestMode: true });
+        const kushki = new Kushki({ merchantId: 'YOUR_MERCHANT_ID', inTestMode: true });
+        
         document.getElementById('payment-form').addEventListener('submit', async function(event) {
             event.preventDefault();
             const expiry = document.getElementById('card-expiry').value.split('/');
@@ -26,32 +27,35 @@
                 document.getElementById('result').textContent = 'Error: Fecha de expiración inválida';
                 return;
             }
+            
             try {
-                const response = await new Promise((resolve) => {
-                    kushki.requestToken({
-                        card: {
-                            name: document.getElementById('card-name').value,
-                            number: document.getElementById('card-number').value,
-                            expiryMonth: expiry[0],
-                            expiryYear: expiry[1],
-                            cvv: document.getElementById('card-cvc').value
+                kushki.requestToken({
+                    card: {
+                        name: document.getElementById('card-name').value,
+                        number: document.getElementById('card-number').value,
+                        expiryMonth: expiry[0],
+                        expiryYear: expiry[1],
+                        cvv: document.getElementById('card-cvc').value
+                    }
+                }, async function(response) {
+                    if (response.token) {
+                        try {
+                            const res = await fetch('https://kushki-backend.onrender.com/pay', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ token: response.token })
+                            });
+                            const data = await res.json();
+                            document.getElementById('result').textContent = data.message;
+                        } catch (error) {
+                            document.getElementById('result').textContent = 'Error en la transacción';
                         }
-                    }, resolve);
+                    } else {
+                        document.getElementById('result').textContent = 'Error: ' + response.error;
+                    }
                 });
-                
-                if (response.token) {
-                    const res = await fetch('https://kushki-backend.onrender.com/pay', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token: response.token })
-                    });
-                    const data = await res.json();
-                    document.getElementById('result').textContent = data.message;
-                } else {
-                    document.getElementById('result').textContent = 'Error: ' + response.error;
-                }
             } catch (error) {
-                document.getElementById('result').textContent = 'Error en la transacción';
+                document.getElementById('result').textContent = 'Error en la solicitud del token';
             }
         });
     </script>
