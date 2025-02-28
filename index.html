@@ -18,7 +18,7 @@
     <p id="result"></p>
     
     <script>
-        const kushki = new Kushki({ merchantId: 'd6e803e22f864c3fa78de3d4bbaa126f', inTestMode: true });
+        const kushki = new Kushki({ merchantId: '9b13dce397014457b7eda369b813052e', inTestMode: true });
         
         document.getElementById('payment-form').addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -36,7 +36,9 @@
                         expiryMonth: expiry[0],
                         expiryYear: expiry[1],
                         cvv: document.getElementById('card-cvc').value
-                    }
+                    },
+                    totalAmount: 16.98,
+                    currency: "MXN"
                 }, async function(response) {
                     console.log("Respuesta de Kushki:", response);
                     if (response.token) {
