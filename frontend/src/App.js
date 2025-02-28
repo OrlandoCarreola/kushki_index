@@ -4,7 +4,7 @@ function App() {
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
   const [message, setMessage] = useState("");
 
-  const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+  const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:10000";
 
   const handlePayment = async () => {
     try {
