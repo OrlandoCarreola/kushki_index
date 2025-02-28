@@ -4,6 +4,8 @@ function App() {
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
   const [message, setMessage] = useState("");
 
+  const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
   const handlePayment = async () => {
     try {
       const kushki = new window.Kushki({ merchantId: "9b13dce397014457b7eda369b813052e", inTestEnvironment: true });
@@ -17,7 +19,7 @@ function App() {
         },
       }, async (response) => {
         if (response.token) {
-          const res = await fetch("https://kushki-server.onrender.com/pay", {
+          const res = await fetch(`${backendURL}/pay`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token: response.token, amount: 10 }),
