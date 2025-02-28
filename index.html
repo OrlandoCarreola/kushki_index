@@ -40,7 +40,7 @@
                 });
                 
                 if (response.token) {
-                    const res = await fetch(`${process.env.BACKEND_URL}/pay`, {
+                    const res = await fetch('https://kushki-backend.onrender.com/pay', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ token: response.token })
