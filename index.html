@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago con Kushki</title>
+    <script src="https://cdn.kushkipagos.com/kushki.min.js"></script>
+</head>
+<body>
+    <h2>Formulario de Pago</h2>
+    <form id="payment-form">
+        <input type="text" id="card-name" placeholder="Nombre en la tarjeta" required>
+        <input type="text" id="card-number" placeholder="Número de tarjeta" required pattern="\d{16}">
+        <input type="text" id="card-expiry" placeholder="MM/YY" required pattern="\d{2}/\d{2}">
+        <input type="text" id="card-cvc" placeholder="CVC" required pattern="\d{3,4}">
+        <button type="submit">Pagar</button>
+    </form>
+    <p id="result"></p>
+    
+    <script>
+        const kushki = new Kushki({ merchantId: 'YOUR_MERCHANT_ID', inTestMode: true });
+        document.getElementById('payment-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const expiry = document.getElementById('card-expiry').value.split('/');
+            if (expiry.length !== 2) {
+                document.getElementById('result').textContent = 'Error: Fecha de expiración inválida';
+                return;
+            }
+            try {
+                const response = await new Promise((resolve) => {
+                    kushki.requestToken({
+                        card: {
+                            name: document.getElementById('card-name').value,
+                            number: document.getElementById('card-number').value,
+                            expiryMonth: expiry[0],
+                            expiryYear: expiry[1],
+                            cvv: document.getElementById('card-cvc').value
+                        }
+                    }, resolve);
+                });
+                
+                if (response.token) {
+                    const res = await fetch(`${process.env.BACKEND_URL}/pay`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: response.token })
+                    });
+                    const data = await res.json();
+                    document.getElementById('result').textContent = data.message;
+                } else {
+                    document.getElementById('result').textContent = 'Error: ' + response.error;
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error en la transacción';
+            }
+        });
+    </script>
+</body>
+</html>
