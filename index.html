@@ -40,6 +40,7 @@
                 }, async function(response) {
                     if (response.token) {
                         try {
+                            console.log("Enviando token a backend:", response.token);
                             const res = await fetch('https://kushki-backend.onrender.com/pay', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
